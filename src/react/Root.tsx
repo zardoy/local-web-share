@@ -1,3 +1,9 @@
+import Actions from './Actions'
+import DownloadQr from './DownloadQr'
+
 export default () => {
-    return <div>test</div>
+    return <div>
+        <Actions />
+        <DownloadQr />
+    </div>
 }

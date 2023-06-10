@@ -10,6 +10,7 @@
         "electron-pack": "electron-builder --win"
     },
     "dependencies": {
+        "@emotion/styled": "^11.11.0",
         "@mui/material": "^5.13.4",
         "@zardoy/electron-esbuild": "^0.1.0",
         "@zardoy/react-util": "^0.2.0",
@@ -17,10 +18,15 @@
         "electron": "^22.0.0",
         "electron-builder": "23",
         "electron-is-dev": "^2.0.0",
+        "esbuild": "0.16.x",
         "next": "^13.4.4",
+        "qrcode.react": "^3.1.0",
         "react": "^18.2.0",
         "react-dom": "^18.2.0",
         "serve-handler": "^6.1.5",
+        "systeminformation": "^5.18.3",
+        "twin.macro": "^3.3.1",
+        "typed-ipc": "^0.0.3",
         "vite": "^4.3.9",
         "vite-plugin-externals": "^0.6.2",
         "ws": "^8.13.0"
@@ -40,5 +46,15 @@
                 }
             }
         }
+    },
+    "prettier": {
+        "semi": false,
+        "singleQuote": true,
+        "proseWrap": "never",
+        "tabWidth": 4,
+        "trailingComma": "all",
+        "arrowParens": "avoid",
+        "printWidth": 160,
+        "endOfLine": "auto"
     }
 }

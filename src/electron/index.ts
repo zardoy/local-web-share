@@ -1,12 +1,11 @@
-import { BrowserWindow, app } from 'electron';
-import electronIsDev from "electron-is-dev";
-import { getFileFromPublic } from "@zardoy/electron-esbuild/build/client"
-import http from "http"
-import { Server, WebSocket, WebSocketServer } from "ws"
-import serveHandler from "serve-handler"
+import { BrowserWindow, app, dialog } from 'electron'
+import electronIsDev from 'electron-is-dev'
+import { getFileFromPublic } from '@zardoy/electron-esbuild/build/client'
 import { join } from 'path'
+import { addFileToSend, getServerUrl, startServer } from './httpServer'
+import { typedIpcMain } from 'typed-ipc'
 
-export let mainWindow: BrowserWindow | null;
+export let mainWindow: BrowserWindow | null
 
 app.on('ready', () => {
     mainWindow = new BrowserWindow({
@@ -15,58 +14,45 @@ app.on('ready', () => {
         minWidth: 800,
         minHeight: 600,
         center: true,
-        backgroundColor: "#000",
+        backgroundColor: '#000',
         darkTheme: true,
         webPreferences: {
             nodeIntegration: true,
-            contextIsolation: false
+            contextIsolation: false,
         },
-        title: app.getName()
+        title: app.getName(),
     })
-    mainWindow.loadURL('url')
-    mainWindow.on("close", () => {
+    mainWindow.on('close', () => {
         app.quit()
     })
-    mainWindow.on("closed", () => mainWindow = null);
-    mainWindow.setMenu(null);
-    void mainWindow.loadURL(electronIsDev ? "http://localhost:3500" : `file:///${getFileFromPublic("index.html")}`);
-})
+    mainWindow.on('closed', () => (mainWindow = null))
+    // mainWindow.setMenu(null);
+    void mainWindow.loadURL(electronIsDev ? 'http://localhost:3500' : `file:///${getFileFromPublic('index.html')}`)
 
-const startServer = async () => {
-    const server = http.createServer((req, res) => {
-        return serveHandler(req, res, {
-            public: electronIsDev ? join(__dirname, "../../dist-remote-ui") : getFileFromUnpacked("dist-remote-ui"),
-            rewrites: [{
-                source: "/",
-                destination: "/index.html",
-            }],
-            headers: [
-                {
-                    "source": "**/*.@(html|css|js|png|jpg)",
-                    "headers": [{
-                        "key": "Cache-Control",
-                        "value": "max-age=7200"
-                    }]
-                }
-            ]
-        })
+    typedIpcMain.bindAllEventListeners({
+        async openFile() {
+            const files = await dialog.showOpenDialog(mainWindow!, {
+                title: 'Select files to send...',
+                // properties: ['multiSelections'],
+            })
+            for (const filePath of files.filePaths) {
+                addFileToSend(filePath)
+            }
+        },
     })
-    const remoteHttpPort = 8080
-    server.listen(remoteHttpPort, () => {
-        console.log(`[remote-ui] Running http server at ${remoteHttpPort} port`)
+    typedIpcMain.handleAllRequests({
+        async requestDownloadQr(_e, {}) {
+            const localIp = await getServerUrl()
+            if (!localIp) throw new Error('Cannot get local IP, check your connection')
+            return {
+                url: localIp,
+            }
+        },
     })
-    // const wss = new WebSocketServer({
-    //     server,
-    //     path: "/ws"
-    // })
-    // wsServer = wss
-    // await new Promise<void>(resolve => {
-    //     wss.once("listening", resolve)
-    // })
-}
+})
 
 startServer()
 
-const getFileFromUnpacked = (path: string,) => {
-    return join(__dirname, "../../app.asar.unpacked/", path)
+const getFileFromUnpacked = (path: string) => {
+    return join(__dirname, '../../app.asar.unpacked/', path)
 }

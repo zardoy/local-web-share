@@ -1,6 +1,6 @@
 import { ThemeProvider, createTheme } from '@mui/material'
-import React, { Suspense } from "react"
-import ReactDom from "react-dom"
+import { Suspense } from 'react'
+import { renderToDom } from '@zardoy/react-util'
 import Root from './Root'
 
 const theme = createTheme({
@@ -10,8 +10,10 @@ const theme = createTheme({
 })
 
 // TODO! display loader!
-ReactDom.render(<Suspense fallback={null}>
-    <ThemeProvider theme={theme}>
-        <Root />
-    </ThemeProvider>
-</Suspense>, document.getElementById("root"))
+renderToDom(
+    <Suspense fallback={null}>
+        <ThemeProvider theme={theme}>
+            <Root />
+        </ThemeProvider>
+    </Suspense>,
+)
