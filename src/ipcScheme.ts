@@ -19,5 +19,7 @@ declare module 'typed-ipc' {
                 url: string
             }
         }
+        createShareMenuOption: {}
+        appInit: {}
     }
 }

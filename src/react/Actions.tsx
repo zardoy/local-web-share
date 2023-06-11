@@ -11,7 +11,13 @@ export default () => {
             >
                 Send files...
             </button>
-            <button>Add to share menu</button>
+            <button
+                onClick={async () => {
+                    await typedIpcRenderer.request('createShareMenuOption')
+                }}
+            >
+                Add to share menu
+            </button>
         </div>
     )
 }

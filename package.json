@@ -7,7 +7,28 @@
     "scripts": {
         "start-main": "electron-esbuild --debug",
         "start-renderer": "vite",
+        "build-main": "electron-esbuild build",
+        "build-renderer": "vite build",
+        "build-app": "tsc && pnpm build-main && pnpm build-renderer",
+        "build-pack": "pnpm build-app && pnpm electron-pack",
         "electron-pack": "electron-builder --win"
+    },
+    "build": {
+        "productName": "Local Web Share",
+        "appId": "com.zardoy.local-web-share",
+        "artifactName": "${productName}-${version}-${platform}-${arch}.${ext}",
+        "win": {
+            "target": "nsis"
+        },
+        "files": [
+            "build/**/*",
+            "dist/**/*",
+        ],
+        "nsis": {},
+        "directories": {
+            "buildResources": "assets",
+            "output": "release"
+        }
     },
     "dependencies": {
         "@emotion/styled": "^11.11.0",
