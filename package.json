@@ -22,7 +22,7 @@
         },
         "files": [
             "build/**/*",
-            "dist/**/*",
+            "dist/**/*"
         ],
         "nsis": {},
         "directories": {
