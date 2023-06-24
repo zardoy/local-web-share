@@ -1,7 +1,8 @@
+/// <reference types="vite/client" />
 import { ThemeProvider, createTheme } from '@mui/material'
-import { Suspense } from 'react'
 import { renderToDom } from '@zardoy/react-util'
 import Root from './Root'
+import './styles.css'
 
 const theme = createTheme({
     palette: {
@@ -9,11 +10,8 @@ const theme = createTheme({
     },
 })
 
-// TODO! display loader!
 renderToDom(
-    <Suspense fallback={null}>
-        <ThemeProvider theme={theme}>
-            <Root />
-        </ThemeProvider>
-    </Suspense>,
+    <ThemeProvider theme={theme}>
+        <Root />
+    </ThemeProvider>,
 )

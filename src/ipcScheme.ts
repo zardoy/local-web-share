@@ -8,6 +8,7 @@ declare module 'typed-ipc' {
     interface IpcRendererEvents {
         updateSendingFiles: {
             ids: number[]
+            urls: string[]
         }
     }
 

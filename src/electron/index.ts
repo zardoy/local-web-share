@@ -1,17 +1,21 @@
-import { BrowserWindow, app, dialog } from 'electron'
+import { BrowserWindow, Menu, MenuItem, app, dialog, shell } from 'electron'
 import electronIsDev from 'electron-is-dev'
 import { getFileFromPublic } from '@zardoy/electron-esbuild/build/client'
-import { join } from 'path'
-import { addFileToSend, getServerUrl, startServer } from './httpServer'
+import { join, basename } from 'path'
+import { addFileToSend, getFileFromUnpacked, getServerUrl, removeFileFromSend, startServer } from './httpServer'
 import { typedIpcMain } from 'typed-ipc'
 import { exec } from 'child_process'
 import { promisify } from 'util'
 import { existsSync, writeFileSync } from 'original-fs'
+import settings from './settings'
 
 export let mainWindow: BrowserWindow | null
 
 const locked = app.requestSingleInstanceLock()
 if (!locked) app.exit()
+
+// todo
+const repo = 'https://github.com/zardoy/local-web-share/'
 
 app.on('ready', () => {
     mainWindow = new BrowserWindow({
@@ -28,12 +32,39 @@ app.on('ready', () => {
         },
         title: app.getName(),
     })
-    mainWindow.on('close', () => {
-        app.quit()
+    mainWindow.setIcon(getAppIcon())
+    const defaultMenu = Menu.getApplicationMenu()!
+    const customMenu = new Menu()
+    for (const item of defaultMenu.items) {
+        if (item.role === 'help') continue
+        customMenu.append(item)
+    }
+    const helpSubmenu = Menu.buildFromTemplate([
+        {
+            label: 'View source code (homepage)',
+            click() {
+                shell.openExternal(repo)
+            },
+        },
+        {
+            label: 'Report / search issues',
+            click() {
+                shell.openExternal(`${repo}issues`)
+            },
+        },
+    ])
+    customMenu.append(
+        new MenuItem({
+            role: 'help',
+            label: 'Help',
+            submenu: helpSubmenu,
+        }),
+    )
+    mainWindow.setMenu(customMenu)
+    mainWindow.on('closed', () => {
+        app.exit()
     })
-    mainWindow.on('closed', () => (mainWindow = null))
-    // mainWindow.setMenu(null);
-    void mainWindow.loadURL(electronIsDev ? 'http://localhost:3500' : `file:///${getFileFromPublic('index.html')}`)
+    loadUrlWindow(mainWindow)
 
     typedIpcMain.bindAllEventListeners({
         async openFile() {
@@ -42,7 +73,7 @@ app.on('ready', () => {
                 // properties: ['multiSelections'],
             })
             for (const filePath of files.filePaths) {
-                addFileToSend(filePath)
+                addFileToSendAndDisplayDownload(filePath)
             }
         },
     })
@@ -71,24 +102,57 @@ app.on('ready', () => {
     })
 
     app.on('second-instance', (_e, argv) => {
-        const result = handleArgv(argv)
-        if (result) mainWindow?.focus()
+        handleArgv(argv)
     })
 })
 
-const handleArgv = argv => {
+const getAppIcon = () => {
+    if (electronIsDev) return join(process.cwd(), 'assets/icon.png')
+    return getFileFromUnpacked('assets/icon.png')
+}
+
+async function addFileToSendAndDisplayDownload(filePath: string) {
+    const { url, id } = await addFileToSend(filePath)
+    const fileName = basename(filePath)
+    const window = new BrowserWindow({
+        width: settings.ui.qrFullSize,
+        height: settings.ui.qrFullSize,
+        title: `${app.getName()} - ${fileName}`,
+        center: true,
+        backgroundColor: '#000',
+        darkTheme: true,
+        resizable: false,
+        minimizable: false,
+    })
+    window.setMenu(null)
+    // todo watch ip change
+    loadUrlWindow(window, `?qr=${url}`)
+    window.on('closed', () => {
+        removeFileFromSend(id)
+    })
+}
+
+const handleArgv = async (argv: string | string[]) => {
     const curFileIndex = argv.indexOf(__filename)
     if (curFileIndex === -1) throw new Error('No file index')
     const files = argv.slice(curFileIndex)
+    if (files.length > 2) {
+        const result = await dialog.showMessageBox(mainWindow!, {
+            message: `You have selected ${files.length} files, you'll need to scan QR for each file seperately. That's why it's recommended to zip them before sending (Send to -> create compressed archive)`,
+            buttons: [`Generate ${files.length} QR codes`, 'Cancel'],
+            type: 'warning',
+        })
+        if (result.response === 1) return
+    }
     // TODO
-    const file = files.at(-1)
-    if (!file) return
-    addFileToSend(file)
+    for (const file of files) {
+        addFileToSendAndDisplayDownload(file)
+    }
     return true
 }
 
 startServer()
 
-const getFileFromUnpacked = (path: string) => {
-    return join(__dirname, '../../app.asar.unpacked/', path)
+function loadUrlWindow(window: BrowserWindow, search = '') {
+    void window.loadURL(electronIsDev ? `http://localhost:3500${search}` : `file:///${getFileFromPublic('index.html')}${search}`)
 }

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no">
+    <title>Remote UI</title>
+    <style>
+        body {
+            user-select: none;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- todo multiple -->
+    <span style="visibility: hidden;" id="message"></span>
+    <form action="fileupload" method="post" enctype="multipart/form-data">
+        <label>
+            <span>Upload file!</span>
+            <input type="file" name="file" onchange="this.form.submit()">
+        </label>
+    </form>
+    <div style="width: 100%;height: 600px;border:1px solid black;border-radius: 3px;touch-action: none;color:gray;padding: 10px;margin: 10px;"
+        id="touchPanel">touch panel</div>
+    <script>
+        const websocketUrl = new URL(location.href)
+        if (websocketUrl.searchParams.get('uploadSuccess')) {
+            message.style.visibility = ""
+            message.innerText = `Uploaded successfully ${websocketUrl.searchParams.get('uploadSuccess')}`
+        }
+        websocketUrl.pathname = "ws"
+        websocketUrl.protocol = "ws"
+        let ws = new WebSocket(websocketUrl)
+        let start
+        let moved
+        touchPanel.addEventListener('pointerdown', (event) => {
+            moved = false
+            start = { clientX: event.clientX, clientY: event.clientY }
+        })
+        let last = Date.now()
+        touchPanel.addEventListener('pointermove', (e) => {
+            if (!start) return
+            const data = { x: e.clientX - start.clientX, y: e.clientY - start.clientY }
+            if (data.x === 0 && data.y === 0) return
+            let d = 2
+            data.x /= d
+            data.y /= d
+            // if (Date.now() - last < 50) return
+            last = Date.now()
+            moved = true
+            ws.send(JSON.stringify({ type: 'move', ...data }))
+        })
+        touchPanel.addEventListener('pointerup', () => {
+            if (!moved) {
+                console.log('click')
+                ws.send(JSON.stringify({ type: 'click' }))
+            }
+            start = undefined
+        })
+    </script>
+</body>
+
+</html>
