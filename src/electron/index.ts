@@ -106,8 +106,7 @@ app.on('ready', () => {
 })
 
 const getAppIcon = () => {
-    if (electronIsDev) return join(process.cwd(), 'assets/icon.png')
-    return getFileFromUnpacked('assets/icon.png')
+    return getFileFromUnpacked('icon.png')
 }
 
 async function addFileToSendAndDisplayDownload(filePath: string) {

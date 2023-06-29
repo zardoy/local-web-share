@@ -20,7 +20,7 @@ export const startServer = () => {
         if (!req.url) return
         if (req.url === '/ui') {
             // todo inline?
-            return res.end(fs.readFileSync(getFileFromUnpacked('dist/ui.html')))
+            return res.end(fs.readFileSync(getFileFromUnpacked('ui.html')))
         }
         if (req.url === '/fileupload') {
             try {
@@ -114,6 +114,6 @@ export const getServerUrl = async () => {
 }
 
 export const getFileFromUnpacked = (path: string) => {
-    if (electronIsDev) return join(process.cwd(), `/src/react/public/${path}`)
-    return join(__dirname, '../../app.asar.unpacked/', path)
+    if (electronIsDev) return join(process.cwd(), `./assets/`, path)
+    return join(__dirname, '../../app.asar.unpacked/assets/', path)
 }
