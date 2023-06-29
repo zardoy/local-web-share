@@ -13,6 +13,7 @@ release
 coverage
 *.lcov
 .nyc_output
+.vscode/settings.json
 
 logs
 *.log

@@ -73,7 +73,10 @@ export const startServer = () => {
                 robot.moveMouse(pos.x + data.x, pos.y + data.y)
             }
             if (data.type === 'click') {
-                robot.mouseClick()
+                robot.mouseClick(data.button || 'left')
+            }
+            if (data.type === 'press') {
+                robot.keyTap(data.button)
             }
         }
         wss.on('connection', ws => {
