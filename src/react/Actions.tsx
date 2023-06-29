@@ -15,8 +15,9 @@ export default () => {
                 onClick={async () => {
                     await typedIpcRenderer.request('createShareMenuOption')
                 }}
+                hidden={!navigator.userAgent.includes('Windows')}
             >
-                Add to share menu
+                Add to file share context menu
             </button>
         </div>
     )

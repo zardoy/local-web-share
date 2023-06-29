@@ -88,11 +88,10 @@ app.on('ready', () => {
         async createShareMenuOption() {
             if (process.platform !== 'win32' || !process.env.APPDATA) return
             const inkPath = '%APPDATA%/Microsoft/Windows/SendTo/Send With Local Web Share.lnk'.replace('%APPDATA%', process.env.APPDATA!)
-            const launchCmdPath = join(__dirname, 'launch.cmd')
+            const launchCmdPath = electronIsDev ? join(__dirname, 'launch.cmd') : getFileFromUnpacked('launch.cmd')
             const launchCmd = `${process.execPath} ${__filename} %*`
-            if (!existsSync(launchCmdPath)) {
-                writeFileSync(launchCmdPath, launchCmd, 'utf8')
-            }
+            writeFileSync(launchCmdPath, launchCmd, 'utf8')
+
             const powerShellCommand = `$WshShell = New-Object -comObject WScript.Shell; $Shortcut = $WshShell.CreateShortcut('${inkPath}'); $Shortcut.TargetPath = '${launchCmdPath}'; $Shortcut.Save()`
             await promisify(exec)(`powershell.exe -command "${powerShellCommand}"`).then(console.log)
         },
@@ -123,8 +122,12 @@ async function addFileToSendAndDisplayDownload(filePath: string) {
         darkTheme: true,
         resizable: false,
         minimizable: false,
+        webPreferences: {
+            contextIsolation: false,
+            nodeIntegration: true,
+        },
     })
-    window.setMenu(null)
+    // window.setMenu(null)
     // todo watch ip change
     loadUrlWindow(window, `?qr=${url}`)
     window.on('closed', () => {
