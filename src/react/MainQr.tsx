@@ -16,12 +16,12 @@ export default () => {
         })
     }, [])
 
-    // return !url /*  || !lastId */ ? <div>Send files first</div> : <Qr value={`http://${url}/${lastId}`} />
+    // return !url /*  || !lastId */ ? <div>Send files first</div> : <Qr value={`${url}/${lastId}`} />
     return (
         url && (
             <div>
                 <h2 style={{ color: 'white', fontFamily: 'sans-serif' }}>UI (Send Files):</h2>
-                <Qr value={`http://${url}/ui`} />
+                <Qr value={`${url}/ui`} />
             </div>
         )
     )

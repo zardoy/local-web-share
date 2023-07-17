@@ -133,7 +133,7 @@ const getLocalIp = async () => {
 }
 
 export const getServerUrl = async () => {
-    return `${await getLocalIp()}:${remoteHttpPort}`
+    return `http://${await getLocalIp()}:${remoteHttpPort}`
 }
 
 export const getFileFromUnpacked = (path: string) => {

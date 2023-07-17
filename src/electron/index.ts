@@ -109,10 +109,10 @@ app.on('ready', async () => {
     })
     typedIpcMain.handleAllRequests({
         async requestDownloadQr(_e, {}) {
-            const localIp = await getServerUrl()
-            if (!localIp) throw new Error('Cannot get local IP, check your connection')
+            const url = await getServerUrl()
+            if (!url) throw new Error('Cannot get local IP, check your connection')
             return {
-                url: localIp,
+                url,
             }
         },
         async createShareMenuOption() {
