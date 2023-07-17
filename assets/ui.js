@@ -101,7 +101,7 @@ window.onload = () => {
             xhr.onload = () => {
                 resolve()
                 if (xhr.status === 200) {
-                    console.log('upload success')
+                    alert(`Uploaded in ${(Date.now() - startTime) / 1000}s`)
                 } else {
                     alert(`upload failed ${xhr.status}`)
                 }
@@ -112,6 +112,5 @@ window.onload = () => {
         document.getElementById('uploading-state').hidden = true
         document.getElementById('upload-file').hidden = false
         e.target.value = ''
-        alert(`Uploaded in ${(Date.now() - startTime) / 1000}s`)
     })
 }
