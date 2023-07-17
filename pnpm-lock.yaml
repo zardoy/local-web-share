@@ -13,6 +13,9 @@ dependencies:
   '@mui/material':
     specifier: ^5.13.4
     version: 5.13.4(@emotion/react@11.11.1)(@emotion/styled@11.11.0)(@types/react@18.2.9)(react-dom@18.2.0)(react@18.2.0)
+  '@types/lodash':
+    specifier: ^4.14.195
+    version: 4.14.195
   '@types/ws':
     specifier: ^8.5.5
     version: 8.5.5
@@ -37,6 +40,9 @@ dependencies:
   formidable:
     specifier: ^3.4.0
     version: 3.4.0
+  lodash:
+    specifier: ^4.17.21
+    version: 4.17.21
   next:
     specifier: ^13.4.4
     version: 13.4.4(@babel/core@7.22.1)(react-dom@18.2.0)(react@18.2.0)
@@ -1491,6 +1497,10 @@ packages:
     resolution: {integrity: sha512-BQ5aZNSCpj7D6K2ksrRCTmKRLEpnPvWDiLPfoGyhZ++8YtiK9d/3DBKPJgry359X/P1PfruyYwvnvwFjuEiEIg==}
     dependencies:
       '@types/node': 20.2.5
+
+  /@types/lodash@4.14.195:
+    resolution: {integrity: sha512-Hwx9EUgdwf2GLarOjQp5ZH8ZmblzcbTBC2wtQWNKARBSxM9ezRIAUpeDTgoQRAFB0+8CNWXVA9+MaSOzOF3nPg==}
+    dev: false
 
   /@types/minimatch@5.1.2:
     resolution: {integrity: sha512-K0VQKziLUWkVKiRVrx4a40iPaxTUefQmjtkQofBkYRcoaaL/8rhwDWww9qWbrgicNOgnpIsMxyNIUM4+n6dUIA==}

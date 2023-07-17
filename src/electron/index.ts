@@ -7,7 +7,7 @@ import { typedIpcMain } from 'typed-ipc'
 import { exec } from 'child_process'
 import { promisify } from 'util'
 import { existsSync, writeFileSync } from 'original-fs'
-import settings from './settings'
+import settings, { initSettings, setSetting } from './settings'
 
 export let mainWindow: BrowserWindow | null
 
@@ -17,7 +17,7 @@ if (!locked) app.exit()
 // todo
 const repo = 'https://github.com/zardoy/local-web-share/'
 
-app.on('ready', () => {
+app.on('ready', async () => {
     mainWindow = new BrowserWindow({
         width: 700,
         height: 400,
@@ -32,11 +32,38 @@ app.on('ready', () => {
         },
         title: app.getName(),
     })
+    await initSettings()
     mainWindow.setIcon(getAppIcon())
     const defaultMenu = Menu.getApplicationMenu()!
     const customMenu = new Menu()
+    customMenu.append(
+        new MenuItem({
+            role: 'appMenu',
+            label: app.getName(),
+            submenu: [
+                {
+                    role: 'about',
+                    label: `Version ${process.env.VERSION || 'dev'}`,
+                },
+                // settings menu item
+                {
+                    label: 'Settings',
+                    click() {
+                        loadUrlWindow(mainWindow!, '?settings')
+                    },
+                },
+                {
+                    type: 'separator',
+                },
+                {
+                    role: 'quit',
+                },
+            ],
+        }),
+    )
     for (const item of defaultMenu.items) {
         if (item.role === 'help') continue
+        if (item.role === 'fileMenu') continue
         customMenu.append(item)
     }
     const helpSubmenu = Menu.buildFromTemplate([
@@ -76,6 +103,9 @@ app.on('ready', () => {
                 addFileToSendAndDisplayDownload(filePath)
             }
         },
+        setSetting(_, { key, value }) {
+            setSetting(key, value)
+        },
     })
     typedIpcMain.handleAllRequests({
         async requestDownloadQr(_e, {}) {
@@ -97,6 +127,11 @@ app.on('ready', () => {
         },
         appInit() {
             handleArgv(process.argv)
+        },
+        getSettings() {
+            return {
+                settings,
+            }
         },
     })
 

@@ -3,6 +3,10 @@ export {}
 declare module 'typed-ipc' {
     interface IpcMainEvents {
         openFile: {}
+        setSetting: {
+            key: string
+            value: any
+        }
     }
 
     interface IpcRendererEvents {
@@ -20,7 +24,13 @@ declare module 'typed-ipc' {
                 url: string
             }
         }
+
         createShareMenuOption: {}
         appInit: {}
+        getSettings: {
+            response: {
+                settings: Record<string, any>
+            }
+        }
     }
 }

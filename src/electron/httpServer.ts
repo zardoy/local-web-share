@@ -9,6 +9,7 @@ import formidable from 'formidable'
 import { WebSocketServer } from 'ws'
 import os from 'os'
 import * as robot from 'robotjs'
+import settings from './settings'
 
 const remoteHttpPort = 8080
 const sendingFiles = new Map<number, /*path*/ string>()
@@ -22,12 +23,21 @@ export const startServer = () => {
             // todo inline?
             return res.end(fs.readFileSync(getFileFromUnpacked('ui.html')))
         }
+        if (req.url === '/ui.js') {
+            return res.end(fs.readFileSync(getFileFromUnpacked('ui.js')))
+        }
         if (req.url === '/fileupload') {
             try {
+                const uploadDir = join(os.homedir(), 'Downloads')
                 const form = formidable({
-                    uploadDir: join(os.homedir(), 'Downloads'),
+                    uploadDir,
                     filename(name, ext, part, form) {
-                        return part.originalFilename || name
+                        const filename = part.originalFilename || name + '.' + ext
+                        let postfix = 0
+                        while (fs.existsSync(join(uploadDir, filename + postfix))) {
+                            postfix++
+                        }
+                        return filename + postfix
                     },
                 })
                 //@ts-ignore
@@ -68,18 +78,28 @@ export const startServer = () => {
         console.log('WebSocketServer is ready')
         const handler = _data => {
             const data = JSON.parse(_data.toString())
-            if (data.type === 'move') {
-                const pos = robot.getMousePos()
-                robot.moveMouse(pos.x + data.x, pos.y + data.y)
+            if (settings.core.remoteTouchpad) {
+                if (data.type === 'move') {
+                    const pos = robot.getMousePos()
+                    robot.moveMouse(pos.x + data.x, pos.y + data.y)
+                }
+                if (data.type === 'click') {
+                    robot.mouseClick(data.button || 'left')
+                }
             }
-            if (data.type === 'click') {
-                robot.mouseClick(data.button || 'left')
-            }
-            if (data.type === 'press') {
+            if (data.type === 'press' && settings.core.remotePlayPauseButton) {
                 robot.keyTap(data.button)
             }
         }
         wss.on('connection', ws => {
+            ws.send(
+                JSON.stringify({
+                    config: {
+                        remoteTouchpad: settings.core.remoteTouchpad,
+                        remotePlayPauseButton: settings.core.remotePlayPauseButton,
+                    },
+                }),
+            )
             ws.on('message', handler)
             ws.on('close', () => {
                 ws.removeEventListener('message', handler)

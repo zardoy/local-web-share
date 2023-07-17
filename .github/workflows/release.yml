@@ -22,4 +22,6 @@ jobs:
           run_install: |
             args: [--frozen-lockfile, --strict-peer-dependencies]
       - run: pnpm install-robotjs && pnpm build-app
-      - run: electron-builder --win --mac
+      - uses: GabrielBB/xvfb-action@v1.6
+        with:
+          run: electron-builder --win --mac

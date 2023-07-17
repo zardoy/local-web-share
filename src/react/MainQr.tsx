@@ -20,7 +20,7 @@ export default () => {
     return (
         url && (
             <div>
-                <h2 style={{ color: 'white', fontFamily: 'sans-serif' }}>UI:</h2>
+                <h2 style={{ color: 'white', fontFamily: 'sans-serif' }}>UI (Send Files):</h2>
                 <Qr value={`http://${url}/ui`} />
             </div>
         )

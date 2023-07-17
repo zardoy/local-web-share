@@ -10,11 +10,16 @@
             user-select: none;
             -webkit-user-select: none;
             overflow: hidden;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
         button,
         label {
             font-size: 1.8rem;
+        }
+
+        [hidden] {
+            display: none !important;
         }
     </style>
 </head>
@@ -22,59 +27,32 @@
 <body>
     <!-- todo multiple -->
     <span style="visibility: hidden;" id="message"></span>
-    <form action="fileupload" method="post" enctype="multipart/form-data">
-        <label style="display: block; width: 100%;">
-            <span>Upload file!</span>
-            <input type="file" name="file" onchange="this.form.submit()">
-        </label>
-    </form>
-    <div style="display: flex;">
-        <button onclick="ws.send(JSON.stringify({type: 'press', button: 'audio_play'}))">play/pause</button>
+    <div style="display: block; width: 100%;" id="upload-file">
+        <button onclick="this.nextElementSibling.click()">Click to upload file!</button>
+        <input type="file" name="file" hidden>
     </div>
-    <div style="width: 100%;height: 600px;border:1px solid black;border-radius: 3px;touch-action: none;color:gray;padding: 10px;margin: 10px;"
-        id="touchPanel">touch panel</div>
-    <script>
-        //@ts-check
-        const websocketUrl = new URL(location.href)
-        if (websocketUrl.searchParams.get('uploadSuccess')) {
-            message.style.visibility = ""
-            message.innerText = `Uploaded successfully ${websocketUrl.searchParams.get('uploadSuccess')}`
-        }
-        websocketUrl.pathname = "ws"
-        websocketUrl.protocol = "ws"
-        let ws = new WebSocket(websocketUrl)
-        let start
-        let moved
-        touchPanel.addEventListener('pointerdown', (event) => {
-            moved = false
-            start = { clientX: event.clientX, clientY: event.clientY, time: Date.now() }
-        })
-        let last = Date.now()
-        let lastMoved = 0
-        touchPanel.addEventListener('pointermove', (e) => {
-            if (!start) return
-            const data = { x: e.clientX - start.clientX, y: e.clientY - start.clientY }
-            if (data.x === 0 && data.y === 0) return
-            let d = 4
-            data.x /= d
-            data.y /= d
-            if (Date.now() - last < 5) return
-            // if (data.x < 1) data.x = 0
-            // if (data.y < 1) data.y = 0
-            data.x = Math.round(data.x)
-            data.y = Math.round(data.y)
-            last = Date.now()
-            moved = true
-            ws.send(JSON.stringify({ type: 'move', ...data }))
-        })
-        touchPanel.addEventListener('pointerup', () => {
-            if (!moved) {
-                console.log('click')
-                ws.send(JSON.stringify({ type: 'click', button: Date.now() - start.time > 500 ? 'right' : undefined }))
-            }
-            start = undefined
-        })
-    </script>
+    <div id="uploading-state" hidden>
+        <h3>Uploading...</h3>
+        <div style="position: relative;width: 80%;">
+            <div style="position: absolute; width: 100%;height: 5px;background: grey;" class="progress-total"></div>
+            <div style="position: absolute; width: 0%;height: 5px;background: deepskyblue;" class="progress-current">
+            </div>
+            <span class="progress-rate"></span>
+        </div>
+    </div>
+    <hr>
+    <div hidden id="connected-full-ui">
+        <div style="display: flex;" id="playPauseButton">
+            <button onclick="ws.send(JSON.stringify({type: 'press', button: 'audio_play'}))">play/pause key</button>
+        </div>
+        <div style="width: 100%;height: 600px;border:1px solid black;border-radius: 3px;touch-action: none;color:gray;padding: 10px;margin: 10px;"
+            id="touchPanel">touch panel</div>
+    </div>
+    <div id="connecting-ui">
+        Remote control connecting...
+        <div id="connecting-error" style="color: red;" hidden>Unable to connect</div>
+    </div>
+    <script src="./ui.js"></script>
 </body>
 
 </html>
