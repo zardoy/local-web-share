@@ -11,12 +11,12 @@ import os from 'os'
 import * as robot from 'robotjs'
 import settings from './settings'
 
-const remoteHttpPort = 8080
 const sendingFiles = new Map<number, /*path*/ string>()
 let lastSendingId = 0
+let server: http.Server<typeof http.IncomingMessage, typeof http.ServerResponse>
 
 export const startServer = () => {
-    const server = http.createServer(async (req, res) => {
+    server = http.createServer(async (req, res) => {
         // if (req.url !== '/') return res.end('Not found')
         if (!req.url) return
         if (req.url === '/ui') {
@@ -65,8 +65,8 @@ export const startServer = () => {
         readStream.pipe(res)
         return
     })
-    server.listen(remoteHttpPort, () => {
-        console.log(`[remote-ui] Running http server at ${remoteHttpPort} port`)
+    server.listen(0, () => {
+        console.log(`[remote-ui] Running http server at ${(server.address() as any).port} port`)
     })
     const wss = new WebSocketServer({
         server,
@@ -133,7 +133,7 @@ const getLocalIp = async () => {
 }
 
 export const getServerUrl = async () => {
-    return `http://${await getLocalIp()}:${remoteHttpPort}`
+    return `http://${await getLocalIp()}:${(server.address() as any).port}`
 }
 
 export const getFileFromUnpacked = (path: string) => {
