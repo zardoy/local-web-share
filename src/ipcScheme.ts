@@ -2,7 +2,9 @@ export {}
 
 declare module 'typed-ipc' {
     interface IpcMainEvents {
-        openFile: {}
+        openFile: {
+            path?: string
+        }
         setSetting: {
             key: string
             value: any

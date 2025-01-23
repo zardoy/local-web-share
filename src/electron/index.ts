@@ -8,6 +8,8 @@ import { exec } from 'child_process'
 import { promisify } from 'util'
 import { existsSync, writeFileSync } from 'original-fs'
 import settings, { initSettings, setSetting } from './settings'
+import { filesize } from 'filesize'
+import fs from 'fs'
 
 export let mainWindow: BrowserWindow | null
 
@@ -94,7 +96,11 @@ app.on('ready', async () => {
     loadUrlWindow(mainWindow)
 
     typedIpcMain.bindAllEventListeners({
-        async openFile() {
+        async openFile(_, { path }) {
+            if (path) {
+                addFileToSendAndDisplayDownload(path)
+                return
+            }
             const files = await dialog.showOpenDialog(mainWindow!, {
                 title: 'Select files to send...',
                 // properties: ['multiSelections'],
@@ -163,7 +169,12 @@ async function addFileToSendAndDisplayDownload(filePath: string) {
     })
     // window.setMenu(null)
     // todo watch ip change
-    loadUrlWindow(window, `?qr=${url}`)
+    const newUrl = new URLSearchParams()
+    newUrl.set('qr', url)
+    const sizeRaw = fs.statSync(filePath).size
+    const fileSize = filesize(sizeRaw)
+    newUrl.set('displayName', `${fileSize} : ${basename(fileName)}`)
+    loadUrlWindow(window, `?${newUrl.toString()}`)
     window.on('closed', () => {
         removeFileFromSend(id)
     })
