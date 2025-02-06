@@ -44,12 +44,6 @@ export default () => {
                     <Checkbox checked={settings['core']['remoteTouchpad']} onChange={e => setSetting('core.remoteTouchpad', e.target.checked)} />
                 </label>
             </div>
-            {/* <ButtonGroup>
-                <Button onClick={() => setSetting('theme', 'dark')} disabled>
-                    Dark
-                </Button>
-                <Button onClick={() => setSetting('theme', 'dark')}>Dark</Button>
-            </ButtonGroup> */}
         </div>
     )
 }

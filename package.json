@@ -81,7 +81,6 @@
         "@zardoy/tsconfig": "^1.5.0",
         "electron": "^22.0.0",
         "electron-builder": "23",
-        "robotjs": "^0.6.0",
         "typescript": "^5.1.3"
     },
     "pnpm": {
@@ -102,5 +101,8 @@
         "arrowParens": "avoid",
         "printWidth": 160,
         "endOfLine": "auto"
+    },
+    "optionalDependencies": {
+        "robotjs": "^0.6.0"
     }
 }

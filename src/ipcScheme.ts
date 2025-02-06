@@ -34,5 +34,11 @@ declare module 'typed-ipc' {
                 settings: Record<string, any>
             }
         }
+        toggleStartup: {
+            response: boolean
+        }
+        getStartupState: {
+            response: boolean
+        }
     }
 }

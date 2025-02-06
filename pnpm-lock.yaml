@@ -88,6 +88,10 @@ importers:
       ws:
         specifier: ^8.13.0
         version: 8.13.0
+    optionalDependencies:
+      robotjs:
+        specifier: ^0.6.0
+        version: 0.6.0
     devDependencies:
       '@types/formidable':
         specifier: ^2.0.6
@@ -110,9 +114,6 @@ importers:
       electron-builder:
         specifier: '23'
         version: 23.6.0
-      robotjs:
-        specifier: ^0.6.0
-        version: 0.6.0
       typescript:
         specifier: ^5.1.3
         version: 5.1.3
@@ -4672,7 +4673,8 @@ snapshots:
       require-from-string: 2.0.2
       uri-js: 4.4.1
 
-  ansi-regex@2.1.1: {}
+  ansi-regex@2.1.1:
+    optional: true
 
   ansi-regex@5.0.1: {}
 
@@ -4734,6 +4736,7 @@ snapshots:
     dependencies:
       delegates: 1.0.0
       readable-stream: 2.3.8
+    optional: true
 
   are-we-there-yet@3.0.1:
     dependencies:
@@ -4828,6 +4831,7 @@ snapshots:
       buffer: 5.7.1
       inherits: 2.0.4
       readable-stream: 3.6.2
+    optional: true
 
   bluebird-lst@1.0.9:
     dependencies:
@@ -4877,6 +4881,7 @@ snapshots:
     dependencies:
       base64-js: 1.5.1
       ieee754: 1.2.1
+    optional: true
 
   builder-util-runtime@9.1.1:
     dependencies:
@@ -5026,7 +5031,8 @@ snapshots:
     optionalDependencies:
       fsevents: 2.3.2
 
-  chownr@1.1.4: {}
+  chownr@1.1.4:
+    optional: true
 
   chownr@2.0.0: {}
 
@@ -5058,7 +5064,8 @@ snapshots:
 
   clsx@2.0.0: {}
 
-  code-point-at@1.1.0: {}
+  code-point-at@1.1.0:
+    optional: true
 
   color-convert@1.9.3:
     dependencies:
@@ -5121,7 +5128,8 @@ snapshots:
 
   convert-source-map@1.9.0: {}
 
-  core-util-is@1.0.2: {}
+  core-util-is@1.0.2:
+    optional: true
 
   cosmiconfig@5.2.1:
     dependencies:
@@ -5210,12 +5218,14 @@ snapshots:
   decompress-response@4.2.1:
     dependencies:
       mimic-response: 2.1.0
+    optional: true
 
   decompress-response@6.0.0:
     dependencies:
       mimic-response: 3.1.0
 
-  deep-extend@0.6.0: {}
+  deep-extend@0.6.0:
+    optional: true
 
   defer-to-connect@2.0.1: {}
 
@@ -5243,7 +5253,8 @@ snapshots:
 
   depd@2.0.0: {}
 
-  detect-libc@1.0.3: {}
+  detect-libc@1.0.3:
+    optional: true
 
   detect-node@2.1.0:
     optional: true
@@ -5648,7 +5659,8 @@ snapshots:
 
   exit-hook@3.2.0: {}
 
-  expand-template@2.0.3: {}
+  expand-template@2.0.3:
+    optional: true
 
   exponential-backoff@3.1.1: {}
 
@@ -5731,7 +5743,8 @@ snapshots:
       hexoid: 1.0.0
       once: 1.4.0
 
-  fs-constants@1.0.0: {}
+  fs-constants@1.0.0:
+    optional: true
 
   fs-extra@10.1.0:
     dependencies:
@@ -5790,6 +5803,7 @@ snapshots:
       string-width: 1.0.2
       strip-ansi: 3.0.1
       wide-align: 1.1.5
+    optional: true
 
   gauge@4.0.4:
     dependencies:
@@ -5851,7 +5865,8 @@ snapshots:
     dependencies:
       ini: 1.3.8
 
-  github-from-package@0.0.0: {}
+  github-from-package@0.0.0:
+    optional: true
 
   github-remote-info@1.0.3:
     dependencies:
@@ -6026,7 +6041,8 @@ snapshots:
     dependencies:
       safer-buffer: 2.1.2
 
-  ieee754@1.2.1: {}
+  ieee754@1.2.1:
+    optional: true
 
   import-fresh@2.0.0:
     dependencies:
@@ -6120,6 +6136,7 @@ snapshots:
   is-fullwidth-code-point@1.0.0:
     dependencies:
       number-is-nan: 1.0.1
+    optional: true
 
   is-fullwidth-code-point@3.0.0: {}
 
@@ -6188,7 +6205,8 @@ snapshots:
       call-bound: 1.0.3
       get-intrinsic: 1.2.7
 
-  isarray@1.0.0: {}
+  isarray@1.0.0:
+    optional: true
 
   isarray@2.0.5: {}
 
@@ -6377,7 +6395,8 @@ snapshots:
 
   mimic-response@1.0.1: {}
 
-  mimic-response@2.1.0: {}
+  mimic-response@2.1.0:
+    optional: true
 
   mimic-response@3.1.0: {}
 
@@ -6434,7 +6453,8 @@ snapshots:
       minipass: 3.3.6
       yallist: 4.0.0
 
-  mkdirp-classic@0.5.3: {}
+  mkdirp-classic@0.5.3:
+    optional: true
 
   mkdirp@1.0.4: {}
 
@@ -6450,11 +6470,13 @@ snapshots:
       object-assign: 4.1.1
       thenify-all: 1.6.0
 
-  nan@2.17.0: {}
+  nan@2.17.0:
+    optional: true
 
   nanoid@3.3.6: {}
 
-  napi-build-utils@1.0.2: {}
+  napi-build-utils@1.0.2:
+    optional: true
 
   negotiator@0.6.3: {}
 
@@ -6493,6 +6515,7 @@ snapshots:
   node-abi@2.30.1:
     dependencies:
       semver: 5.7.1
+    optional: true
 
   node-addon-api@1.7.2:
     optional: true
@@ -6515,7 +6538,8 @@ snapshots:
 
   node-releases@2.0.12: {}
 
-  noop-logger@0.1.1: {}
+  noop-logger@0.1.1:
+    optional: true
 
   nopt@6.0.0:
     dependencies:
@@ -6554,6 +6578,7 @@ snapshots:
       console-control-strings: 1.1.0
       gauge: 2.7.4
       set-blocking: 2.0.0
+    optional: true
 
   npmlog@6.0.2:
     dependencies:
@@ -6562,7 +6587,8 @@ snapshots:
       gauge: 4.0.4
       set-blocking: 2.0.0
 
-  number-is-nan@1.0.1: {}
+  number-is-nan@1.0.1:
+    optional: true
 
   object-assign@4.1.1: {}
 
@@ -6768,12 +6794,14 @@ snapshots:
       tar-fs: 2.1.1
       tunnel-agent: 0.6.0
       which-pm-runs: 1.1.0
+    optional: true
 
   process-exists@4.1.0:
     dependencies:
       ps-list: 6.3.0
 
-  process-nextick-args@2.0.1: {}
+  process-nextick-args@2.0.1:
+    optional: true
 
   progress@2.0.3: {}
 
@@ -6819,6 +6847,7 @@ snapshots:
       ini: 1.3.8
       minimist: 1.2.8
       strip-json-comments: 2.0.1
+    optional: true
 
   react-dom@18.2.0(react@18.2.0):
     dependencies:
@@ -6878,6 +6907,7 @@ snapshots:
       safe-buffer: 5.1.2
       string_decoder: 1.1.1
       util-deprecate: 1.0.2
+    optional: true
 
   readable-stream@3.6.2:
     dependencies:
@@ -6956,6 +6986,7 @@ snapshots:
       nan: 2.17.0
       node-abi: 2.30.1
       prebuild-install: 5.3.6
+    optional: true
 
   rollup@2.77.3:
     optionalDependencies:
@@ -6977,7 +7008,8 @@ snapshots:
       has-symbols: 1.1.0
       isarray: 2.0.5
 
-  safe-buffer@5.1.2: {}
+  safe-buffer@5.1.2:
+    optional: true
 
   safe-buffer@5.2.1: {}
 
@@ -7111,13 +7143,15 @@ snapshots:
 
   signal-exit@4.0.2: {}
 
-  simple-concat@1.0.1: {}
+  simple-concat@1.0.1:
+    optional: true
 
   simple-get@3.1.1:
     dependencies:
       decompress-response: 4.2.1
       once: 1.4.0
       simple-concat: 1.0.1
+    optional: true
 
   simple-update-notifier@1.1.0:
     dependencies:
@@ -7197,6 +7231,7 @@ snapshots:
       code-point-at: 1.1.0
       is-fullwidth-code-point: 1.0.0
       strip-ansi: 3.0.1
+    optional: true
 
   string-width@4.2.3:
     dependencies:
@@ -7243,6 +7278,7 @@ snapshots:
   string_decoder@1.1.1:
     dependencies:
       safe-buffer: 5.1.2
+    optional: true
 
   string_decoder@1.3.0:
     dependencies:
@@ -7251,6 +7287,7 @@ snapshots:
   strip-ansi@3.0.1:
     dependencies:
       ansi-regex: 2.1.1
+    optional: true
 
   strip-ansi@6.0.1:
     dependencies:
@@ -7264,7 +7301,8 @@ snapshots:
 
   strip-final-newline@2.0.0: {}
 
-  strip-json-comments@2.0.1: {}
+  strip-json-comments@2.0.1:
+    optional: true
 
   styled-components@5.3.11(react-dom@18.2.0(react@18.2.0))(react-is@18.2.0)(react@18.2.0):
     dependencies:
@@ -7355,6 +7393,7 @@ snapshots:
       mkdirp-classic: 0.5.3
       pump: 3.0.0
       tar-stream: 2.2.0
+    optional: true
 
   tar-stream@2.2.0:
     dependencies:
@@ -7363,6 +7402,7 @@ snapshots:
       fs-constants: 1.0.0
       inherits: 2.0.4
       readable-stream: 3.6.2
+    optional: true
 
   tar@6.1.15:
     dependencies:
@@ -7415,6 +7455,7 @@ snapshots:
   tunnel-agent@0.6.0:
     dependencies:
       safe-buffer: 5.2.1
+    optional: true
 
   twin.macro@3.3.1(tailwindcss@3.3.2):
     dependencies:
@@ -7593,7 +7634,8 @@ snapshots:
       is-weakmap: 2.0.2
       is-weakset: 2.0.4
 
-  which-pm-runs@1.1.0: {}
+  which-pm-runs@1.1.0:
+    optional: true
 
   which-typed-array@1.1.18:
     dependencies:

@@ -1,4 +1,4 @@
-import { BrowserWindow, Menu, MenuItem, app, dialog, shell } from 'electron'
+import { BrowserWindow, Menu, MenuItem, app, dialog, shell, Tray, globalShortcut } from 'electron'
 import electronIsDev from 'electron-is-dev'
 import { getFileFromPublic } from '@zardoy/electron-esbuild/build/client'
 import { join, basename } from 'path'
@@ -12,9 +12,22 @@ import { filesize } from 'filesize'
 import fs from 'fs'
 
 export let mainWindow: BrowserWindow | null
+let tray: Tray | null = null
 
 const locked = app.requestSingleInstanceLock()
 if (!locked) app.exit()
+
+// Set auto launch
+if (process.platform === 'win32') {
+    app.setLoginItemSettings({
+        openAtLogin: true,
+        openAsHidden: true,
+    })
+}
+
+// Handle window-all-closed event
+app.on('window-all-closed', () => {
+})
 
 // todo
 const repo = 'https://github.com/zardoy/local-web-share/'
@@ -33,6 +46,7 @@ app.on('ready', async () => {
             contextIsolation: false,
         },
         title: app.getName(),
+        show: !process.argv.includes('--hidden'),
     })
     await initSettings()
     mainWindow.setIcon(getAppIcon())
@@ -95,6 +109,41 @@ app.on('ready', async () => {
     })
     loadUrlWindow(mainWindow)
 
+    // Create tray icon
+    tray = new Tray(getAppIcon())
+    const contextMenu = Menu.buildFromTemplate([
+        {
+            label: 'Show App',
+            click: () => {
+                mainWindow?.show()
+            },
+        },
+        {
+            label: 'Quit',
+            click: () => {
+                app.quit()
+            },
+        },
+    ])
+    tray.setToolTip(app.getName())
+    tray.setContextMenu(contextMenu)
+    tray.on('click', () => {
+        mainWindow?.show()
+    })
+
+    // Register global shortcut
+    globalShortcut.register('CommandOrControl+Q', () => {
+        app.quit()
+    })
+
+    // Prevent window from closing
+    // mainWindow.on('close', (event) => {
+    // })
+
+    mainWindow.on('closed', () => {
+        mainWindow = null
+    })
+
     typedIpcMain.bindAllEventListeners({
         async openFile(_, { path }) {
             if (path) {
@@ -139,12 +188,38 @@ app.on('ready', async () => {
                 settings,
             }
         },
+        async toggleStartup() {
+            const settings = app.getLoginItemSettings()
+            const newState = !settings.openAtLogin
+            app.setLoginItemSettings({
+                openAtLogin: newState,
+                openAsHidden: true,
+            })
+            return newState
+        },
+        async getStartupState() {
+            if (process.platform !== 'win32') return false
+            return app.getLoginItemSettings().openAtLogin
+        }
     })
 
     app.on('second-instance', (_e, argv) => {
         handleArgv(argv)
     })
 })
+
+// Add cleanup
+app.on('will-quit', () => {
+    globalShortcut.unregisterAll()
+    if (tray) {
+        tray.destroy()
+        tray = null
+    }
+})
+
+// app.on('before-quit', () => {
+//     app.isQuitting = true
+// })
 
 const getAppIcon = () => {
     return getFileFromUnpacked('icon.png')
