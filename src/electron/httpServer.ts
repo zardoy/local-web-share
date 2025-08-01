@@ -8,8 +8,15 @@ import { join } from 'path'
 import formidable from 'formidable'
 import { WebSocketServer } from 'ws'
 import os from 'os'
-import * as robot from 'robotjs'
 import settings from './settings'
+
+let robot: typeof import('robotjs') | undefined
+
+try {
+    robot = require('robotjs')
+} catch (e) {
+    console.log(`Cannot load robotjs, remote control will be disabled`, e.message)
+}
 
 const DEFAULT_PORT = 55462
 const sendingFiles = new Map<number, /*path*/ string>()
@@ -95,7 +102,9 @@ export const startServer = () => {
             wss.once('listening', resolve)
         }).then(() => {
             console.log('WebSocketServer is ready')
-            const handler = _data => {
+            const remoteControlHandler = _data => {
+                if (!robot) return
+
                 const data = JSON.parse(_data.toString())
                 if (settings.core.remoteTouchpad) {
                     if (data.type === 'move') {
@@ -119,9 +128,9 @@ export const startServer = () => {
                         },
                     }),
                 )
-                ws.on('message', handler)
+                ws.on('message', remoteControlHandler)
                 ws.on('close', () => {
-                    ws.removeEventListener('message', handler)
+                    ws.removeEventListener('message', remoteControlHandler)
                 })
             })
         })
