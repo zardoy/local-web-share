@@ -4,6 +4,10 @@ on:
   push:
     branches: [ main ]
 
+permissions:
+  contents: write
+  actions: read
+
 jobs:
   build-windows:
     runs-on: windows-latest
@@ -36,6 +40,10 @@ jobs:
     - name: Install dependencies
       run: pnpm install --frozen-lockfile
 
+    - name: Prepare build metadata
+      shell: bash
+      run: node prepare.mjs ${{ github.run_number }}
+
     - name: Build app
       run: pnpm run build-app
 
@@ -43,12 +51,21 @@ jobs:
       run: pnpm run electron-pack-win
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        APP_VERSION: 0.0.1-alpha.${{ github.run_number }}
+
+    - name: List files in release directory
+      shell: powershell
+      run: |
+        Get-ChildItem -Path "release\" -Recurse -Force
 
     - name: Upload Windows artifacts
       uses: actions/upload-artifact@v4
       with:
         name: local-web-share-windows
-        path: release/Local Web Share*.exe
+        path: |
+          release/Local Web Share*.exe
+          release/latest.yml
+          release/*.blockmap
         retention-days: 30
 
   build-macos:
@@ -82,6 +99,13 @@ jobs:
     - name: Install dependencies
       run: pnpm install --frozen-lockfile
 
+    - name: Typecheck
+      run: pnpm typecheck || true
+
+    - name: Prepare build metadata
+      shell: bash
+      run: node prepare.mjs ${{ github.run_number }}
+
     - name: Build app
       run: pnpm run build-app
 
@@ -89,18 +113,27 @@ jobs:
       run: pnpm run electron-pack-mac
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        APP_VERSION: 0.0.1-alpha.${{ github.run_number }}
+
+    - name: List files in release directory
+      shell: bash
+      run: |
+        ls -la release/
 
     - name: Upload macOS artifacts
       uses: actions/upload-artifact@v4
       with:
         name: local-web-share-macos
-        path: release/Local Web Share*.dmg
+        path: |
+          release/Local Web Share*.dmg
+          release/latest-mac.yml
+          release/*.blockmap
         retention-days: 30
 
   release:
     needs: [build-windows, build-macos]
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/dev' && github.event_name == 'push'
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
 
     steps:
     - name: Checkout code
@@ -110,29 +143,35 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         name: local-web-share-windows
-        path: ./release-artifacts/
+        path: ./release-artifacts/windows/
 
     - name: Download macOS artifacts
       uses: actions/download-artifact@v4
       with:
         name: local-web-share-macos
-        path: ./release-artifacts/
-
-    - name: Get version from package.json
-      id: package-version
-      run: echo "version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
+        path: ./release-artifacts/macos/
 
     - name: List artifacts
       run: |
         echo "=== Release artifacts ==="
         ls -la ./release-artifacts/
+        echo "=== Windows artifacts ==="
+        ls -la ./release-artifacts/windows/
+        echo "=== macOS artifacts ==="
+        ls -la ./release-artifacts/macos/
         echo "=== Finding exact filenames ==="
-        WIN_FILE=$(find ./release-artifacts/ -name "*.exe" -type f | head -n 1)
-        MAC_FILE=$(find ./release-artifacts/ -name "*.dmg" -type f | head -n 1)
+        WIN_FILE=$(find ./release-artifacts/windows/ -name "*.exe" -type f | head -n 1)
+        WIN_LATEST=$(find ./release-artifacts/windows/ -name "latest.yml" -type f | head -n 1)
+        MAC_FILE=$(find ./release-artifacts/macos/ -name "*.dmg" -type f | head -n 1)
+        MAC_LATEST=$(find ./release-artifacts/macos/ -name "latest-mac.yml" -type f | head -n 1)
         echo "WIN_FILE=${WIN_FILE}" >> $GITHUB_ENV
+        echo "WIN_LATEST=${WIN_LATEST}" >> $GITHUB_ENV
         echo "MAC_FILE=${MAC_FILE}" >> $GITHUB_ENV
+        echo "MAC_LATEST=${MAC_LATEST}" >> $GITHUB_ENV
         echo "Windows file: ${WIN_FILE}"
+        echo "Windows latest: ${WIN_LATEST}"
         echo "macOS file: ${MAC_FILE}"
+        echo "macOS latest: ${MAC_LATEST}"
 
     - name: Create Release
       id: create_release
@@ -140,16 +179,25 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: v${{ steps.package-version.outputs.version }}-dev-${{ github.run_number }}
-        release_name: Local Web Share Beta v${{ steps.package-version.outputs.version }} (Dev Build #${{ github.run_number }})
+        tag_name: v0.0.1-alpha.${{ github.run_number }}
+        release_name: Dev Build ${{ github.run_number }}
         body: |
-          🚀 **Stable Build**
+          🚀 **Local Web Share**
 
-          See commits for changes.
+          A modern, peer-to-peer file sharing application.
+
+          **Features:**
+          - Fast local network file sharing
+          - Drag & drop support
+          - Secure peer-to-peer transfer
+          - Cross-platform support
 
           **Downloads:**
           - Windows: See attached assets
           - macOS (Apple Silicon): See attached assets
+
+          **Installation:**
+          - Download the appropriate file for your platform and run the installer.
 
           ⚠️ **Note:** This is a development build and may contain bugs or unstable features.
         draft: false
@@ -162,8 +210,28 @@ jobs:
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
         asset_path: ${{ env.WIN_FILE }}
-        asset_name: Local-Web-Share-Beta-${{ steps.package-version.outputs.version }}-Windows.exe
+        asset_name: Local-Web-Share-Setup-0.0.1-alpha.${{ github.run_number }}.exe
         asset_content_type: application/octet-stream
+
+    - name: Upload Windows Setup Blockmap
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ${{ env.WIN_FILE }}.blockmap
+        asset_name: Local-Web-Share-Setup-0.0.1-alpha.${{ github.run_number }}.exe.blockmap
+        asset_content_type: application/octet-stream
+
+    - name: Upload Windows Latest YML
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ${{ env.WIN_LATEST }}
+        asset_name: latest.yml
+        asset_content_type: application/x-yaml
 
     - name: Upload macOS Release Asset
       uses: actions/upload-release-asset@v1
@@ -172,5 +240,30 @@ jobs:
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
         asset_path: ${{ env.MAC_FILE }}
-        asset_name: Local-Web-Share-Beta-${{ steps.package-version.outputs.version }}-macOS-ARM64.dmg
+        asset_name: Local-Web-Share-0.0.1-alpha.${{ github.run_number }}.dmg
         asset_content_type: application/octet-stream
+
+    - name: Upload macOS Latest YML
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ${{ env.MAC_LATEST }}
+        asset_name: latest-mac.yml
+        asset_content_type: application/x-yaml
+
+    - name: Prepare Release Metadata
+      run: |
+        mkdir -p release-metadata
+        cp ./release-artifacts/windows/latest.yml release-metadata/latest.yml
+        cp ./release-artifacts/macos/latest-mac.yml release-metadata/latest-mac.yml
+        ls -la release-metadata/
+
+    - name: Deploy Release Info to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./release-metadata
+        publish_branch: release-info
+        force_orphan: true
